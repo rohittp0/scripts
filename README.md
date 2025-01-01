@@ -1,21 +1,22 @@
 # Scripts ✨
 
 Welcome to **Scripts**, a project that allows you to **generate SSH commands** from a friendly **web UI**!  
-Manage your servers, run handy scripts remotely, and streamline your dev operations – all from one place.
+Manage your servers, run handy scripts remotely, and streamline your dev operations.
 
 ---
 
 ## 🚀 How It Works
 
-1. **Web UI**  
-   - Open the web interface (e.g., `index.html`) where you can fill in your SSH details:
+Go to the [WebUI](https://rohittp.com/scripts/)
+
+1. **Enter Your SSH Params**  
      - **PEM File Path** (Default: `~/.ssh/`)
      - **SSH User** (Default: `root`)
      - **IP/Domain** (e.g., `example.com`)
      - **Port** (Default: `22`)  
 
 2. **Select a Script**  
-   - Choose from the scripts listed in `index.json`.  
+   - Choose from the scripts listed.  
    - If a script has parameters, you can fill those in.  
 
 3. **Get Your Command**  
@@ -40,7 +41,7 @@ We love contributions! Here’s how you can add or update scripts:
        "desc": "Brief description of what this script does."
      }
    ]
-   
+
 # Available Scripts
 
 Below are the scripts found in `index.json`:
