@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Use curl to fetch the script by URL/path, then pipe to bash
     // The script may need quotes if it has spaces, etc., but for demonstration:
-    command += `"curl -sS ${selectedScript.path} | bash -s`;
+    command += `"curl -sS ${location.href}${selectedScript.path} | bash -s`;
 
     // If params exist, append them
     if (params.length) {
