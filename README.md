@@ -42,3 +42,14 @@ We love contributions! Here’s how you can add or update scripts:
    ]
    
 # Available Scripts
+
+Below are the scripts found in `index.json`:
+
+## User Setup
+- **Path**: `scripts/user.sh`
+- **Description**: Creates a new 'ubuntu' user, copies SSH authorized keys from root to 'ubuntu', and enables passwordless sudo for 'ubuntu' (must be run as root).
+
+## Docker Installer
+- **Path**: `scripts/docker.sh`
+- **Description**: Checks if Docker is installed; if not, installs it and adds the current user to the 'docker' group.
+
