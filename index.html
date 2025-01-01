@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SSH Script Runner</title>
+  <!-- Link to CSS -->
+  <link rel="stylesheet" href="web/styles.css" />
+  <!-- Defer JS so it executes after parsing HTML -->
+  <script defer src="web/script.js"></script>
+</head>
+<body>
+  <h1>SSH Script Runner</h1>
+
+  <!-- SECTION 1: SSH Info -->
+  <section class="ssh-info">
+    <h2>1. SSH Information</h2>
+    <div class="row">
+      <!-- Left column: PEM and SSH User -->
+      <div class="col">
+        <div class="form-group">
+          <label for="pemPath">PEM File Path:</label>
+          <input
+            type="text"
+            id="pemPath"
+            name="pemPath"
+            placeholder="~/.ssh/key.pem"
+            value="~/.ssh/"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="sshUser">SSH User:</label>
+          <input
+            type="text"
+            id="sshUser"
+            name="sshUser"
+            placeholder="root"
+            value="root"
+          />
+        </div>
+      </div>
+
+      <!-- Right column: IP/Domain and Port -->
+      <div class="col">
+        <div class="form-group">
+          <label for="host">IP / Domain:</label>
+          <input
+            type="text"
+            id="host"
+            name="host"
+            placeholder="example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="port">Port:</label>
+          <input
+            type="number"
+            id="port"
+            name="port"
+            placeholder="22"
+            value="22"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: Script Selection + Parameters -->
+  <section class="script-selection">
+    <h2>2. Script Selection &amp; Parameters</h2>
+    <div class="row">
+      <!-- Left column: Script dropdown + param table -->
+      <div class="col">
+        <div class="form-group">
+          <label for="scriptSelect">Select a script:</label>
+          <select id="scriptSelect" name="scriptSelect">
+            <!-- Options will be dynamically populated via JS -->
+          </select>
+        </div>
+
+        <table id="paramsTable" class="hidden">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Parameter rows will be added dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Right column: Script description -->
+      <div class="col">
+        <h3>Script Description</h3>
+        <div id="scriptDescription" class="script-desc">
+          <!-- Will be updated dynamically -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUTPUT: The constructed SSH command -->
+  <section class="output-section">
+    <h2>SSH Command</h2>
+    <pre id="sshCommandOutput">ssh -i ~/.ssh/key root@example.com "curl -sS https://example.com/script.sh | bash -s"</pre>
+  </section>
+</body>
+</html>

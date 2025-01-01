@@ -1,0 +1,14 @@
+[
+    {
+      "name": "User Setup",
+      "path": "scripts/user.sh",
+      "params": [],
+      "desc": "Creates a new 'ubuntu' user, copies SSH authorized keys from root to 'ubuntu', and enables passwordless sudo for 'ubuntu' (must be run as root)."
+    },
+    {
+      "name": "Docker Installer",
+      "path": "scripts/docker.sh",
+      "params": [],
+      "desc": "Checks if Docker is installed; if not, installs it and adds the current user to the 'docker' group."
+    }
+  ]

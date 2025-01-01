@@ -1,0 +1,37 @@
+name: Update README on index.json changes
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.json'  # Only trigger when index.json changes
+
+# Grant permissions to read/write repository contents
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+
+      - name: Update README from index.json
+        run: |
+          node update-readme.js
+
+      - name: Commit and push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add README.md
+          # If there are no changes, 'git commit' will fail => use '|| true' to ignore
+          git commit -m "chore: update README with available scripts" || true
+          git push
