@@ -5,15 +5,15 @@ body {
   line-height: 1.5;
 }
 
-h1 {
-  margin-bottom: 1rem;
-}
-
 section {
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 2rem;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+
+h2 {
+  margin-top: 0;
 }
 
 /* Form groups */
@@ -75,4 +75,19 @@ th, td {
   background-color: #fafafa;
   min-height: 80px;
   line-height: 1.4;
+}
+
+.btn {
+  text-decoration: none;
+  display: flex;
+  box-shadow: #9a9a9a -1px 2px 14px 0px;
+  border-radius: 6px;
+  padding: 0.5rem;
+  width: max-content;
+}
+
+.head-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
