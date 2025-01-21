@@ -10,5 +10,11 @@
       "path": "scripts/docker.sh",
       "params": [],
       "desc": "Checks if Docker is installed; if not, installs it and adds the current user to the 'docker' group."
+    },
+    {
+      "name": "Nginx Installer",
+      "path": "scripts/nginx.sh",
+      "params": [],
+      "desc": "Installs nginx, enables and starts the nginx service. Also installs certbot for nginx."
     }
   ]
