@@ -15,7 +15,7 @@ sudo apt install -y nginx
 sudo systemctl enable nginx
 
 # Install certbot
-sudo snap install --classic certbot
+sudo apt install certbot python3-certbot-nginx
 
 # Start nginx service
 sudo systemctl start nginx
