@@ -8,6 +8,11 @@ fi
 
 KEY_PATH="$HOME/.ssh/$1"
 
+# Ensure ~/.ssh directory exists
+if [ ! -d "$HOME/.ssh" ]; then
+    mkdir -m 700 "$HOME/.ssh"
+fi
+
 # Check if the key already exists
 if [ -f "$KEY_PATH" ]; then
     echo "Warning: The key $KEY_PATH already exists. Skipping creation."
