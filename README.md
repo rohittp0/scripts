@@ -58,3 +58,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/nginx.sh`
 - **Description**: Installs nginx, enables and starts the nginx service. Also installs certbot for nginx.
 
+## Create SSH Key
+- **Path**: `scripts/create_ssh_key.sh`
+- **Description**: Creates an SSH key at ~/.ssh/$1, adds it to the SSH agent, and prints the public key.
+
