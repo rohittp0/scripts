@@ -54,3 +54,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/docker.sh`
 - **Description**: Checks if Docker is installed; if not, installs it and adds the current user to the 'docker' group.
 
+## Nginx Installer
+- **Path**: `scripts/nginx.sh`
+- **Description**: Installs nginx, enables and starts the nginx service. Also installs certbot for nginx.
+
