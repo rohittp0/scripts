@@ -16,5 +16,11 @@
       "path": "scripts/nginx.sh",
       "params": [],
       "desc": "Installs nginx, enables and starts the nginx service. Also installs certbot for nginx."
+    },
+    {
+      "name": "Create SSH Key",
+      "path": "scripts/create_ssh_key.sh",
+      "params": ["Key Name"],
+      "desc": "Creates an SSH key at ~/.ssh/$1, adds it to the SSH agent, and prints the public key."
     }
   ]
