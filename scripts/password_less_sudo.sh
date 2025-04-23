@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check if the script is run as root
-if [ "$(id -u)" -ne 0; then
+if [ "$(id -u)" -ne 0 ]; then
     echo "Error: This script must be run as root."
     exit 1
 fi
