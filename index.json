@@ -22,5 +22,11 @@
       "path": "scripts/create_ssh_key.sh",
       "params": ["Key Name"],
       "desc": "Creates an SSH key at ~/.ssh/$1, adds it to the SSH agent, and prints the public key."
+    },
+    {
+      "name": "Password-less Sudo Setup",
+      "path": "scripts/password_less_sudo.sh",
+      "params": ["User Name"],
+      "desc": "Enables sudo access and password-less sudo access for the provided user."
     }
   ]
