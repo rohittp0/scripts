@@ -62,3 +62,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/create_ssh_key.sh`
 - **Description**: Creates an SSH key at ~/.ssh/$1, adds it to the SSH agent, and prints the public key.
 
+## Password-less Sudo Setup
+- **Path**: `scripts/password_less_sudo.sh`
+- **Description**: Enables sudo access and password-less sudo access for the provided user.
+
