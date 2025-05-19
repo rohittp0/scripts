@@ -28,5 +28,11 @@
       "path": "scripts/password_less_sudo.sh",
       "params": ["User Name"],
       "desc": "Enables sudo access and password-less sudo access for the provided user."
+    },
+    {
+      "name": "Add SSH Key",
+      "path": "scripts/add_ssh_key.sh",
+      "params": ["Public Key"],
+      "desc": "Adds the provided SSH public key to the authorized_keys file."
     }
   ]
