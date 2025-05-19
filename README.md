@@ -66,3 +66,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/password_less_sudo.sh`
 - **Description**: Enables sudo access and password-less sudo access for the provided user.
 
+## Add SSH Key
+- **Path**: `scripts/add_ssh_key.sh`
+- **Description**: Adds the provided SSH public key to the authorized_keys file.
+
