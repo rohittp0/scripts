@@ -9,6 +9,10 @@ if [ -z "$1" ]; then
     echo >&2 "Usage: $0 <public_key>"
     exit 1
 fi
+if [ -z "$1" ]; then
+    echo >&2 "Usage: $0 <public_key>"
+    exit 1
+fi
 
 PUBLIC_KEY="$1"
 AUTHORIZED_KEYS_FILE="$HOME/.ssh/authorized_keys"
