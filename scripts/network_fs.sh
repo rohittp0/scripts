@@ -1,78 +1,77 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -euo pipefail
+set -Eeuo pipefail
 
-# Required variables
-# HOST - The remote host to connect to
-# USER - The user to connect as ( optional defaults to current user )
-# FOLDER - The remote folder to mount
-# IDENTITY_FILE - The SSH identity file to use
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") HOST REMOTE_DIR IDENTITY_FILE [USER]
 
-# Validate required arguments
-if [ "$#" -lt 3 ]; then
-    echo "Usage: $0 <HOST> <FOLDER> <IDENTITY_FILE> [USER]"
-    echo "  HOST: The remote host to connect to"
-    echo "  FOLDER: The remote folder to mount"
-    echo "  IDENTITY_FILE: The SSH identity file to use"
-    echo "  USER: (Optional) The user to connect as. Defaults to the current user."
-    exit 1
-fi
+Mount a remote directory over SSHFS and add a persistent fstab entry.
+
+  HOST          remote host (ssh target)
+  REMOTE_DIR    remote path to mount
+  IDENTITY_FILE absolute or ~/ relative path to private key
+  USER          local user (defaults to \$USER)
+EOF
+  exit 1
+}
+
+[[ $# -lt 3 ]] && usage
 
 HOST=$1
-FOLDER=$2
+REMOTE_DIR=$2
 IDENTITY_FILE=$3
-USER=${4:-$USER}
+LOCAL_USER=${4:-$(id -un)}
 
-MOUNT_POINT="/home/${USER}/${FOLDER}"
-IDENTITY_FILE="/home/${USER}/.ssh/${IDENTITY_FILE}"
+# Resolve HOME robustly even under sudo
+LOCAL_HOME=$(getent passwd "$LOCAL_USER" | cut -d: -f6)
 
-# Check if sshfs is installed if not install it
-if ! command -v sshfs &> /dev/null; then
-    echo "sshfs is not installed. Installing..."
-    if command -v apt-get &> /dev/null; then
-        sudo apt-get update && sudo apt-get install -y sshfs
-    elif command -v yum &> /dev/null; then
-        sudo yum install -y sshfs
-    else
-        echo "Package manager not supported. Please install sshfs manually."
-        exit 1
-    fi
+MOUNT_POINT="${LOCAL_HOME}/${HOST//:/}_${REMOTE_DIR//\//_}"  # unique & safe
+IDENTITY_PATH=$(realpath -m "$IDENTITY_FILE")                # canonical
+
+# ---------- sanity checks ---------------------------------------------------
+# detect & install sshfs
+if ! command -v sshfs >/dev/null 2>&1; then
+  if   command -v apt   >/dev/null; then sudo apt update && sudo apt install -y sshfs
+  elif command -v dnf   >/dev/null; then sudo dnf install -y sshfs
+  elif command -v pacman>/dev/null; then sudo pacman -Sy --noconfirm sshfs
+  elif command -v zypper>/dev/null; then sudo zypper --non-interactive in sshfs
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+         brew list macfuse >/dev/null 2>&1 || brew install macfuse
+         brew install sshfs
+  else
+    echo "⚠️  Unsupported OS. Install sshfs manually." >&2; exit 1
+  fi
 fi
 
-# Ensure the mount point exists
-if [ ! -d $MOUNT_POINT ]; then
-    echo "Creating mount point directory ${$MOUNT_POINT}..."
-    mkdir -p "${$MOUNT_POINT}"
+[[ -r "$IDENTITY_PATH" ]] || { echo "Cannot read key $IDENTITY_PATH"; exit 3; }
+
+if mountpoint -q "$MOUNT_POINT"; then
+  echo "Already mounted at $MOUNT_POINT"; exit 0
 fi
 
-# Ensure mount point is empty
-if [ "$(ls -A $MOUNT_POINT ]; then
-    echo "Mount point ${$MOUNT_POINT} is not empty. Please clear it before mounting."
-    exit 1
+mkdir -p "$MOUNT_POINT"
+if [[ -n $(ls -A "$MOUNT_POINT") ]]; then
+  echo "Mount point not empty: $MOUNT_POINT"; exit 4
 fi
 
-# Verify that the identity file exists and is readable
-if [ ! -f $IDENTITY_FILE ] || [ ! -r $IDENTITY_FILE ]; then
-    echo "Error: Identity file ${IDENTITY_FILE} does not exist or is not readable."
-    exit 1
-fi
-sudo sshfs -o allow_other,default_permissions,identityfile="${IDENTITY_FILE}" \
-    "${USER}@${HOST}:${FOLDER}" "$MOUNT_POINT"
+# ---------- do the mount ----------------------------------------------------
+echo "Mounting $HOST:$REMOTE_DIR → $MOUNT_POINT"
+sudo sshfs \
+  -o IdentityFile="$IDENTITY_PATH" \
+  -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3 \
+  -o allow_other,default_permissions \
+  "${LOCAL_USER}@${HOST}:$REMOTE_DIR" "$MOUNT_POINT"
 
-# Add the mount to fstab for persistence
-FSTAB_ENTRY="${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER} fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=${IDENTITY_FILE},allow_other,default_permissions 0 0"
+# ---------- add to /etc/fstab ----------------------------------------------
+FSTAB_OPTS="noauto,x-systemd.automount,_netdev,reconnect,\
+IdentityFile=${IDENTITY_PATH},allow_other,default_permissions"
 
-if ! grep -q "${FSTAB_ENTRY}" /etc/fstab; then
-    echo "Adding entry to /etc/fstab for persistence..."
-    echo "${FSTAB_ENTRY}" | sudo tee -a /etc/fstab > /dev/null
-else
-    echo "Entry already exists in /etc/fstab."
+FSTAB_LINE="${LOCAL_USER}@${HOST}:${REMOTE_DIR}  ${MOUNT_POINT}  fuse.sshfs  ${FSTAB_OPTS}  0  0"
+
+if ! grep -qsF "$FSTAB_LINE" /etc/fstab; then
+  echo "Persisting mount in /etc/fstab"
+  echo "$FSTAB_LINE" | sudo tee -a /etc/fstab >/dev/null
 fi
 
-# Check if the mount was successful
-if mountpoint -q $MOUNT_POINT; then
-   echo "Successfully mounted ${FOLDER} from ${HOST} to ${MOUNT_POINT}"
-else
-    echo "Mount failed. Please check the logs for errors."
-    exit 1
-fi
+echo "✅  Mounted successfully."
