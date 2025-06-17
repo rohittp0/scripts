@@ -70,3 +70,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/add_ssh_key.sh`
 - **Description**: Adds the provided SSH public key to the authorized_keys file.
 
+## Mount SSH-FS
+- **Path**: `scripts/network_fs.sh`
+- **Description**: Mounts a remote SSH filesystem using sshfs at the specified mount point. If a user is not specified, it defaults to the current user.
+
