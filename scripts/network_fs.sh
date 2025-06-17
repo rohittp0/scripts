@@ -8,6 +8,15 @@ set -euo pipefail
 # FOLDER - The remote folder to mount
 # IDENTITY_FILE - The SSH identity file to use
 
+# Validate required arguments
+if [ "$#" -lt 3 ]; then
+    echo "Usage: $0 <HOST> <FOLDER> <IDENTITY_FILE> [USER]"
+    echo "  HOST: The remote host to connect to"
+    echo "  FOLDER: The remote folder to mount"
+    echo "  IDENTITY_FILE: The SSH identity file to use"
+    echo "  USER: (Optional) The user to connect as. Defaults to the current user."
+    exit 1
+fi
 if [ "$#" -lt 3 ]; then
   echo "Usage: $0 <remote_host> <remote_folder> <identity_file> [user]" >&2
   exit 1
@@ -43,6 +52,11 @@ if [ "$(ls -A /home/${USER}/${FOLDER})" ]; then
     exit 1
 fi
 
+# Verify that the identity file exists and is readable
+if [ ! -f "/home/${USER}/.ssh/${IDENTITY_FILE}" ] || [ ! -r "/home/${USER}/.ssh/${IDENTITY_FILE}" ]; then
+    echo "Error: Identity file /home/${USER}/.ssh/${IDENTITY_FILE} does not exist or is not readable."
+    exit 1
+fi
 sudo sshfs -o allow_other,default_permissions,identityfile="$HOME/.ssh/${IDENTITY_FILE}" \
     "${USER}@${HOST}:${FOLDER}" "$MOUNT_POINT"
 
