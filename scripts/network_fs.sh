@@ -8,6 +8,11 @@ set -euo pipefail
 # FOLDER - The remote folder to mount
 # IDENTITY_FILE - The SSH identity file to use
 
+if [ "$#" -lt 3 ]; then
+  echo "Usage: $0 <remote_host> <remote_folder> <identity_file> [user]" >&2
+  exit 1
+fi
+
 HOST=$1
 FOLDER=$2
 IDENTITY_FILE=$3
