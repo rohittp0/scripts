@@ -61,6 +61,15 @@ if [[ -n $(ls -A "$MOUNT_POINT") ]]; then
   echo "Mount point not empty: $MOUNT_POINT"; exit 4
 fi
 
+# Ensure .ssh directory exists and add host key to known_hosts if not already present
+sudo -u "$LOCAL_USER" mkdir -p "${LOCAL_HOME}/.ssh"
+sudo -u "$LOCAL_USER" chmod 700 "${LOCAL_HOME}/.ssh"
+if ! sudo -u "$LOCAL_USER" ssh-keygen -F "$HOST" -f "${LOCAL_HOME}/.ssh/known_hosts" >/dev/null 2>&1; then
+  echo "Adding $HOST to known_hosts..."
+  sudo -u "$LOCAL_USER" ssh-keyscan -H "$HOST" >> "${LOCAL_HOME}/.ssh/known_hosts" 2>/dev/null
+  sudo -u "$LOCAL_USER" chmod 644 "${LOCAL_HOME}/.ssh/known_hosts"
+fi
+
 # ---------- add to /etc/fstab ----------------------------------------------
 FSTAB_OPTS="noauto,user,_netdev,reconnect,\
 IdentityFile=${IDENTITY_PATH},allow_other,default_permissions"
@@ -69,6 +78,8 @@ if ! grep -qsF "$FSTAB_LINE" /etc/fstab; then
   echo "Adding mount entry to /etc/fstab"
   echo "$FSTAB_LINE" | sudo tee -a /etc/fstab >/dev/null
 fi
+
+sudo systemctl daemon-reload
 
 # ---------- activate the mount from fstab ----------------------------------
 echo "Mounting $HOST:$REMOTE_DIR → $MOUNT_POINT"
