@@ -34,5 +34,11 @@
       "path": "scripts/add_ssh_key.sh",
       "params": ["Public Key"],
       "desc": "Adds the provided SSH public key to the authorized_keys file."
+    },
+    {
+      "name": "Mount SSH-FS",
+      "path": "scripts/network_fs.sh",
+      "params": ["Remote Host", "Mount Point", "Identity File", "User (optional)"],
+      "desc": "Mounts a remote SSH filesystem using sshfs at the specified mount point. If a user is not specified, it defaults to the current user."
     }
   ]
