@@ -44,8 +44,6 @@ if ! command -v sshfs >/dev/null 2>&1; then
   fi
 fi
 
-[[ -r "$IDENTITY_PATH" ]] || { echo "Cannot read key $IDENTITY_PATH"; exit 3; }
-
 if mountpoint -q "$MOUNT_POINT"; then
   echo "Already mounted at $MOUNT_POINT"; exit 0
 fi
