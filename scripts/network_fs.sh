@@ -17,15 +17,14 @@ if [ "$#" -lt 3 ]; then
     echo "  USER: (Optional) The user to connect as. Defaults to the current user."
     exit 1
 fi
-if [ "$#" -lt 3 ]; then
-  echo "Usage: $0 <remote_host> <remote_folder> <identity_file> [user]" >&2
-  exit 1
-fi
 
 HOST=$1
 FOLDER=$2
 IDENTITY_FILE=$3
 USER=${4:-$USER}
+
+MOUNT_POINT="/home/${USER}/${FOLDER}"
+IDENTITY_FILE="/home/${USER}/.ssh/${IDENTITY_FILE}"
 
 # Check if sshfs is installed if not install it
 if ! command -v sshfs &> /dev/null; then
@@ -41,27 +40,27 @@ if ! command -v sshfs &> /dev/null; then
 fi
 
 # Ensure the mount point exists
-if [ ! -d "/home/${USER}/${FOLDER}" ]; then
-    echo "Creating mount point directory /home/${USER}/${FOLDER}..."
-    mkdir -p "/home/${USER}/${FOLDER}"
+if [ ! -d $MOUNT_POINT ]; then
+    echo "Creating mount point directory ${$MOUNT_POINT}..."
+    mkdir -p "${$MOUNT_POINT}"
 fi
 
 # Ensure mount point is empty
-if [ "$(ls -A /home/${USER}/${FOLDER})" ]; then
-    echo "Mount point /home/${USER}/${FOLDER} is not empty. Please clear it before mounting."
+if [ "$(ls -A $MOUNT_POINT ]; then
+    echo "Mount point ${$MOUNT_POINT} is not empty. Please clear it before mounting."
     exit 1
 fi
 
 # Verify that the identity file exists and is readable
-if [ ! -f "/home/${USER}/.ssh/${IDENTITY_FILE}" ] || [ ! -r "/home/${USER}/.ssh/${IDENTITY_FILE}" ]; then
-    echo "Error: Identity file /home/${USER}/.ssh/${IDENTITY_FILE} does not exist or is not readable."
+if [ ! -f $IDENTITY_FILE ] || [ ! -r $IDENTITY_FILE ]; then
+    echo "Error: Identity file ${IDENTITY_FILE} does not exist or is not readable."
     exit 1
 fi
-sudo sshfs -o allow_other,default_permissions,identityfile="$HOME/.ssh/${IDENTITY_FILE}" \
+sudo sshfs -o allow_other,default_permissions,identityfile="${IDENTITY_FILE}" \
     "${USER}@${HOST}:${FOLDER}" "$MOUNT_POINT"
 
 # Add the mount to fstab for persistence
-FSTAB_ENTRY="${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER} fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=/home/${USER}/.ssh/${IDENTITY_FILE},allow_other,default_permissions 0 0"
+FSTAB_ENTRY="${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER} fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=${IDENTITY_FILE},allow_other,default_permissions 0 0"
 
 if ! grep -q "${FSTAB_ENTRY}" /etc/fstab; then
     echo "Adding entry to /etc/fstab for persistence..."
@@ -71,8 +70,8 @@ else
 fi
 
 # Check if the mount was successful
-if mountpoint -q "/home/${USER}/${FOLDER}"; then
-   echo "Successfully mounted ${FOLDER} from ${HOST} to /home/${USER}/${FOLDER}"
+if mountpoint -q $MOUNT_POINT; then
+   echo "Successfully mounted ${FOLDER} from ${HOST} to ${MOUNT_POINT}"
 else
     echo "Mount failed. Please check the logs for errors."
     exit 1
