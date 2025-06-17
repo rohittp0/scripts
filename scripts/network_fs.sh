@@ -43,7 +43,8 @@ if [ "$(ls -A /home/${USER}/${FOLDER})" ]; then
     exit 1
 fi
 
-sudo sshfs -o allow_other,default_permissions,identityfile=/home/${USER}/.ssh/${IDENTITY_FILE} ${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER}
+sudo sshfs -o allow_other,default_permissions,identityfile="$HOME/.ssh/${IDENTITY_FILE}" \
+    "${USER}@${HOST}:${FOLDER}" "$MOUNT_POINT"
 
 # Add the mount to fstab for persistence
 FSTAB_ENTRY="${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER} fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=/home/${USER}/.ssh/${IDENTITY_FILE},allow_other,default_permissions 0 0"
