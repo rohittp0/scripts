@@ -41,5 +41,4 @@
       "params": ["Remote Host", "Remote Folder", "Identity File", "User (optional)"],
       "desc": "Mounts a remote SSH filesystem using sshfs at the specified mount point. If a user is not specified, it defaults to the current user."
     }
-    }
   ]
