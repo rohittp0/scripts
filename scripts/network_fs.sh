@@ -46,7 +46,7 @@ fi
 sudo sshfs -o allow_other,default_permissions,identityfile=/home/${USER}/.ssh/${IDENTITY_FILE} ${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER}
 
 # Add the mount to fstab for persistence
-FSTAB_ENTRY="${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER} fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=/home/ubuntu/.ssh/${IDENTITY_FILE},allow_other,default_permissions 0 0"
+FSTAB_ENTRY="${USER}@${HOST}:${FOLDER} /home/${USER}/${FOLDER} fuse.sshfs noauto,x-systemd.automount,_netdev,reconnect,identityfile=/home/${USER}/.ssh/${IDENTITY_FILE},allow_other,default_permissions 0 0"
 
 if ! grep -q "${FSTAB_ENTRY}" /etc/fstab; then
     echo "Adding entry to /etc/fstab for persistence..."
