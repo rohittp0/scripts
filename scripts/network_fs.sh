@@ -26,7 +26,7 @@ LOCAL_USER=${4:-$(id -un)}
 # Resolve HOME robustly even under sudo
 LOCAL_HOME=$(getent passwd "$LOCAL_USER" | cut -d: -f6)
 
-MOUNT_POINT="${LOCAL_HOME}/${HOST//:/}_${REMOTE_DIR//\//_}"  # unique & safe
+MOUNT_POINT="${LOCAL_HOME}/${REMOTE_DIR//\//_}"  # unique & safe
 IDENTITY_PATH=$(realpath -m "$IDENTITY_FILE")                # canonical
 
 # ---------- sanity checks ---------------------------------------------------
