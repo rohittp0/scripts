@@ -37,5 +37,7 @@ then
     sudo gpasswd -a $USER docker
     newgrp docker
 
+    sudo curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
+
     echo -e "${COLOR_GREEN}Docker installed successfully.${NO_COLOR}"
 fi
