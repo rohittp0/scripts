@@ -90,9 +90,11 @@
 
   <!-- OUTPUT: The constructed SSH command -->
   <section class="output-section">
-    <h2>SSH Command</h2>
-    <pre
-      id="sshCommandOutput">ssh -i ~/.ssh/key root@example.com "curl -sS https://example.com/script.sh | bash -s"</pre>
+    <div class="head-section">
+      <h2>SSH Command</h2>
+      <button id="copyButton" class="btn" title="Copy to clipboard">Copy to Clipboard</button>
+    </div>
+    <pre id="sshCommandOutput">ssh -i ~/.ssh/key root@example.com "curl -sS https://example.com/script.sh | bash -s"</pre>
   </section>
 </body>
 

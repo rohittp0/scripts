@@ -79,11 +79,19 @@ th, td {
 
 .btn {
   text-decoration: none;
+  padding: 0.5rem 1rem;
+  margin-left: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f8f8f8;
+  cursor: pointer;
+  font-size: 0.9em;
   display: flex;
-  box-shadow: #9a9a9a -1px 2px 14px 0px;
-  border-radius: 6px;
-  padding: 0.5rem;
-  width: max-content;
+  align-items: center;
+}
+
+.btn:hover {
+  background: #eee;
 }
 
 .head-section {

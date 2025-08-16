@@ -139,6 +139,39 @@ document.addEventListener("DOMContentLoaded", () => {
     buildSSHCommand();
   }
 
+  // Copy to clipboard functionality
+  const copyButton = document.getElementById("copyButton");
+  
+  copyButton.addEventListener("click", () => {
+    const command = sshCommandOutput.textContent;
+    
+    // Create a temporary textarea element to hold the command
+    const textarea = document.createElement("textarea");
+    textarea.value = command;
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+      // Execute the copy command
+      document.execCommand("copy");
+      
+      // Change the button text temporarily
+      const originalText = copyButton.textContent;
+      copyButton.textContent = "Copied!";
+      
+      // Reset the text after 2 seconds
+      setTimeout(() => {
+        copyButton.textContent = originalText;
+      }, 2000);
+      
+    } catch (err) {
+      console.error("Failed to copy command: ", err);
+    } finally {
+      // Clean up
+      document.body.removeChild(textarea);
+    }
+  });
+
   // Event listeners
   scriptSelect.addEventListener("change", () => {
     renderParams();
