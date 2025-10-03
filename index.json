@@ -40,5 +40,11 @@
       "path": "scripts/network_fs.sh",
       "params": ["Remote Host", "Remote Folder", "Identity File", "User (optional)"],
       "desc": "Mounts a remote SSH filesystem using sshfs at the specified mount point. If a user is not specified, it defaults to the current user."
+    },
+    {
+      "name": "Swap Setup",
+      "path": "scripts/swap.sh",
+      "params": ["Swap Size (GB)", "Swappiness (0-100)"],
+      "desc": "Creates and configures a swap file on Ubuntu. Default swap size is 2GB and swappiness is 10. Swappiness controls how aggressively the kernel swaps memory pages (lower = less swapping)."
     }
   ]
