@@ -74,3 +74,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/network_fs.sh`
 - **Description**: Mounts a remote SSH filesystem using sshfs at the specified mount point. If a user is not specified, it defaults to the current user.
 
+## Swap Setup
+- **Path**: `scripts/swap.sh`
+- **Description**: Creates and configures a swap file on Ubuntu. Default swap size is 2GB and swappiness is 10. Swappiness controls how aggressively the kernel swaps memory pages (lower = less swapping).
+
