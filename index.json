@@ -75,7 +75,8 @@
     "path": "scripts/certbot_cloudflare.sh",
     "params": [
       "Cloudflare API Token",
-      "Domain Name"
+      "Domain Name",
+      "Email (optional)"
     ],
     "desc": "Uses Certbot with Cloudflare DNS plugin to automatically generate SSL certificates for the specified domain. Installs the necessary Cloudflare plugin if not present."
   }
