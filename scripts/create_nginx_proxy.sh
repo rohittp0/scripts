@@ -15,6 +15,17 @@ fi
 # Set the Nginx config file path
 NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
 
+# Ensure the required SSL config files exist, if not, download them
+if [ ! -f /etc/letsencrypt/options-ssl-nginx.conf ]; then
+    echo "Downloading options-ssl-nginx.conf..."
+    sudo wget https://raw.githubusercontent.com/certbot/certbot/master/certbot/nginx/options-ssl-nginx.conf -O /etc/letsencrypt/options-ssl-nginx.conf
+fi
+
+if [ ! -f /etc/letsencrypt/ssl-dhparams.pem ]; then
+    echo "Downloading ssl-dhparams.pem..."
+    sudo wget https://raw.githubusercontent.com/certbot/certbot/master/certbot/nginx/ssl-dhparams.pem -O /etc/letsencrypt/ssl-dhparams.pem
+fi
+
 echo "Creating Nginx config for $DOMAIN → $PROXY_PASS"
 
 # Create the Nginx config with sudo
