@@ -46,5 +46,17 @@
       "path": "scripts/swap.sh",
       "params": ["Swap Size (GB)", "Swappiness (0-100)"],
       "desc": "Creates and configures a swap file on Ubuntu. Default swap size is 2GB and swappiness is 10. Swappiness controls how aggressively the kernel swaps memory pages (lower = less swapping)."
+    },
+    {
+      "name": "Nginx Proxy Setup",
+      "path": "scripts/create_nginx_proxy.sh",
+      "params": ["Domain Name", "Proxy Target URL"],
+      "desc": "Creates an Nginx configuration for proxying requests to a specified backend server. Supports SSL with Certbot and Cloudflare DNS plugin, and includes optimizations for WebSockets and compression."
+    },
+    {
+      "name": "Certbot Cloudflare SSL",
+      "path": "scripts/certbot_cloudflare.sh",
+      "params": ["Cloudflare API Token", "Domain Name"],
+      "desc": "Uses Certbot with Cloudflare DNS plugin to automatically generate SSL certificates for the specified domain. Installs the necessary Cloudflare plugin if not present."
     }
-  ]
+]
