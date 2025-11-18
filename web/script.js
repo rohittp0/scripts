@@ -12,6 +12,61 @@ document.addEventListener("DOMContentLoaded", () => {
   const sshCommandOutput = document.getElementById("sshCommandOutput");
   const scriptDescription = document.getElementById("scriptDescription");
 
+  // LocalStorage keys for SSH fields
+  const STORAGE_KEYS = {
+    pemPath: "ssh_pemPaths",
+    sshUser: "ssh_users",
+    host: "ssh_hosts"
+  };
+
+  // Helper function to get stored values from localStorage
+  function getStoredValues(key) {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error("Error reading from localStorage:", e);
+      return [];
+    }
+  }
+
+  // Helper function to save a new value to localStorage
+  function saveValue(key, value) {
+    if (!value || !value.trim()) return;
+
+    try {
+      const values = getStoredValues(key);
+      // Only add if it's not already in the list
+      if (!values.includes(value)) {
+        values.push(value);
+        localStorage.setItem(key, JSON.stringify(values));
+      }
+    } catch (e) {
+      console.error("Error saving to localStorage:", e);
+    }
+  }
+
+  // Helper function to populate a datalist
+  function populateDatalist(datalistId, values) {
+    const datalist = document.getElementById(datalistId);
+    datalist.innerHTML = "";
+    values.forEach(value => {
+      const option = document.createElement("option");
+      option.value = value;
+      datalist.appendChild(option);
+    });
+  }
+
+  // Initialize datalists with stored values
+  function initializeDatalistsFromStorage() {
+    populateDatalist("pemPathList", getStoredValues(STORAGE_KEYS.pemPath));
+    populateDatalist("sshUserList", getStoredValues(STORAGE_KEYS.sshUser));
+    populateDatalist("hostList", getStoredValues(STORAGE_KEYS.host));
+  }
+
+  // Call initialization
+  initializeDatalistsFromStorage();
+
   // Fetch JSON data
   fetch("./index.json")
     .then((response) => response.json())
@@ -181,4 +236,29 @@ document.addEventListener("DOMContentLoaded", () => {
   sshUserInput.addEventListener("input", buildSSHCommand);
   hostInput.addEventListener("input", buildSSHCommand);
   portInput.addEventListener("input", buildSSHCommand);
+
+  // Save values to localStorage when user changes them (on blur/focus loss)
+  pemPathInput.addEventListener("blur", () => {
+    const value = pemPathInput.value.trim();
+    if (value) {
+      saveValue(STORAGE_KEYS.pemPath, value);
+      populateDatalist("pemPathList", getStoredValues(STORAGE_KEYS.pemPath));
+    }
+  });
+
+  sshUserInput.addEventListener("blur", () => {
+    const value = sshUserInput.value.trim();
+    if (value) {
+      saveValue(STORAGE_KEYS.sshUser, value);
+      populateDatalist("sshUserList", getStoredValues(STORAGE_KEYS.sshUser));
+    }
+  });
+
+  hostInput.addEventListener("blur", () => {
+    const value = hostInput.value.trim();
+    if (value) {
+      saveValue(STORAGE_KEYS.host, value);
+      populateDatalist("hostList", getStoredValues(STORAGE_KEYS.host));
+    }
+  });
 });

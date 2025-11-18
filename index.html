@@ -29,12 +29,14 @@
       <div class="col">
         <div class="form-group">
           <label for="pemPath">Key File:</label>
-          <input type="text" id="pemPath" name="pemPath" placeholder="~/.ssh/key.pem" value="~/.ssh/key.pem" />
+          <input type="text" id="pemPath" name="pemPath" list="pemPathList" placeholder="~/.ssh/key.pem" value="~/.ssh/key.pem" />
+          <datalist id="pemPathList"></datalist>
         </div>
 
         <div class="form-group">
           <label for="sshUser">User:</label>
-          <input type="text" id="sshUser" name="sshUser" placeholder="root" value="root" />
+          <input type="text" id="sshUser" name="sshUser" list="sshUserList" placeholder="root" value="root" />
+          <datalist id="sshUserList"></datalist>
         </div>
       </div>
 
@@ -42,7 +44,8 @@
       <div class="col">
         <div class="form-group">
           <label for="host">IP / Domain:</label>
-          <input type="text" id="host" name="host" placeholder="example.com" />
+          <input type="text" id="host" name="host" list="hostList" placeholder="example.com" />
+          <datalist id="hostList"></datalist>
         </div>
 
         <div class="form-group">
