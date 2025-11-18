@@ -1,62 +1,82 @@
 [
-    {
-      "name": "User Setup",
-      "path": "scripts/user.sh",
-      "params": [],
-      "desc": "Creates a new 'ubuntu' user, copies SSH authorized keys from root to 'ubuntu', and enables passwordless sudo for 'ubuntu' (must be run as root)."
-    },
-    {
-      "name": "Docker Installer",
-      "path": "scripts/docker.sh",
-      "params": [],
-      "desc": "Checks if Docker is installed; if not, installs it and adds the current user to the 'docker' group."
-    },
-    {
-      "name": "Nginx Installer",
-      "path": "scripts/nginx.sh",
-      "params": [],
-      "desc": "Installs nginx, enables and starts the nginx service. Also installs certbot for nginx."
-    },
-    {
-      "name": "Create SSH Key",
-      "path": "scripts/create_ssh_key.sh",
-      "params": ["Key Name"],
-      "desc": "Creates an SSH key at ~/.ssh/$1, adds it to the SSH agent, and prints the public key."
-    },
-    {
-      "name": "Password-less Sudo Setup",
-      "path": "scripts/password_less_sudo.sh",
-      "params": ["User Name"],
-      "desc": "Enables sudo access and password-less sudo access for the provided user."
-    },
-    {
-      "name": "Add SSH Key",
-      "path": "scripts/add_ssh_key.sh",
-      "params": ["Public Key"],
-      "desc": "Adds the provided SSH public key to the authorized_keys file."
-    },
-    {
-      "name": "Mount SSH-FS",
-      "path": "scripts/network_fs.sh",
-      "params": ["Remote Host", "Remote Folder", "Identity File", "User (optional)"],
-      "desc": "Mounts a remote SSH filesystem using sshfs at the specified mount point. If a user is not specified, it defaults to the current user."
-    },
-    {
-      "name": "Swap Setup",
-      "path": "scripts/swap.sh",
-      "params": ["Swap Size (GB)", "Swappiness (0-100)"],
-      "desc": "Creates and configures a swap file on Ubuntu. Default swap size is 2GB and swappiness is 10. Swappiness controls how aggressively the kernel swaps memory pages (lower = less swapping)."
-    },
-    {
-      "name": "Nginx Proxy Setup",
-      "path": "scripts/create_nginx_proxy.sh",
-      "params": ["Domain Name", "Proxy Target URL"],
-      "desc": "Creates an Nginx configuration for proxying requests to a specified backend server. Supports SSL with Certbot and Cloudflare DNS plugin, and includes optimizations for WebSockets and compression."
-    },
-    {
-      "name": "Certbot Cloudflare SSL",
-      "path": "scripts/certbot_cloudflare.sh",
-      "params": ["Cloudflare API Token", "Domain Name"],
-      "desc": "Uses Certbot with Cloudflare DNS plugin to automatically generate SSL certificates for the specified domain. Installs the necessary Cloudflare plugin if not present."
-    }
+  {
+    "name": "User Setup",
+    "path": "scripts/user.sh",
+    "params": [],
+    "desc": "Creates a new 'ubuntu' user, copies SSH authorized keys from root to 'ubuntu', and enables passwordless sudo for 'ubuntu' (must be run as root)."
+  },
+  {
+    "name": "Docker Installer",
+    "path": "scripts/docker.sh",
+    "params": [],
+    "desc": "Checks if Docker is installed; if not, installs it and adds the current user to the 'docker' group."
+  },
+  {
+    "name": "Nginx Installer",
+    "path": "scripts/nginx.sh",
+    "params": [],
+    "desc": "Installs nginx, enables and starts the nginx service. Also installs certbot for nginx."
+  },
+  {
+    "name": "Create SSH Key",
+    "path": "scripts/create_ssh_key.sh",
+    "params": [
+      "Key Name"
+    ],
+    "desc": "Creates an SSH key at ~/.ssh/$1, adds it to the SSH agent, and prints the public key."
+  },
+  {
+    "name": "Password-less Sudo Setup",
+    "path": "scripts/password_less_sudo.sh",
+    "params": [
+      "User Name"
+    ],
+    "desc": "Enables sudo access and password-less sudo access for the provided user."
+  },
+  {
+    "name": "Add SSH Key",
+    "path": "scripts/add_ssh_key.sh",
+    "params": [
+      "Public Key"
+    ],
+    "desc": "Adds the provided SSH public key to the authorized_keys file."
+  },
+  {
+    "name": "Mount SSH-FS",
+    "path": "scripts/network_fs.sh",
+    "params": [
+      "Remote Host",
+      "Remote Folder",
+      "Identity File",
+      "User (optional)"
+    ],
+    "desc": "Mounts a remote SSH filesystem using sshfs at the specified mount point. If a user is not specified, it defaults to the current user."
+  },
+  {
+    "name": "Swap Setup",
+    "path": "scripts/swap.sh",
+    "params": [
+      "Swap Size (GB)",
+      "Swappiness (0-100)"
+    ],
+    "desc": "Creates and configures a swap file on Ubuntu. Default swap size is 2GB and swappiness is 10. Swappiness controls how aggressively the kernel swaps memory pages (lower = less swapping)."
+  },
+  {
+    "name": "Nginx Proxy Setup",
+    "path": "scripts/create_nginx_proxy.sh",
+    "params": [
+      "Domain Name",
+      "Proxy Target URL"
+    ],
+    "desc": "Creates an Nginx configuration for proxying requests to a specified backend server. Supports SSL with Certbot and Cloudflare DNS plugin, and includes optimizations for WebSockets and compression."
+  },
+  {
+    "name": "Certbot Cloudflare SSL",
+    "path": "scripts/certbot_cloudflare.sh",
+    "params": [
+      "Cloudflare API Token",
+      "Domain Name"
+    ],
+    "desc": "Uses Certbot with Cloudflare DNS plugin to automatically generate SSL certificates for the specified domain. Installs the necessary Cloudflare plugin if not present."
+  }
 ]
