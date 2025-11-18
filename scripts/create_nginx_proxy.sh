@@ -75,10 +75,7 @@ server {
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
 
-    # WebSocket timeout (optimisation B)
-    proxy_read_timeout 300s;
-
-    # Enable compression (optimisation C)
+    # Enable compression
     gzip on;
     gzip_types text/css application/json text/javascript application/javascript;
     gzip_proxied any;
@@ -87,7 +84,7 @@ server {
     # Timeouts
     proxy_connect_timeout 60s;
     proxy_send_timeout 60s;
-    proxy_read_timeout 60s;
+    proxy_read_timeout 300s;
 
     # Proxy to backend
     location / {
