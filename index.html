@@ -23,8 +23,15 @@
 
   <!-- SECTION 1: SSH Info -->
   <section class="ssh-info">
-    <h2>1. SSH </h2>
-    <div class="row">
+    <h2>
+      1. SSH
+      <label class="toggle-switch">
+        <input type="checkbox" id="modeToggle" />
+        <span class="toggle-slider"></span>
+      </label>
+      Local
+    </h2>
+    <div class="row ssh-fields">
       <!-- Left column: PEM and SSH User -->
       <div class="col">
         <div class="form-group">
@@ -53,7 +60,7 @@
           <input type="number" id="port" name="port" placeholder="22" value="22" />
         </div>
       </div>
-    </div>
+    </div> <!-- end of ssh-fields -->
   </section>
 
   <!-- SECTION 2: Script Selection + Parameters -->

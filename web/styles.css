@@ -99,3 +99,52 @@ th, td {
   align-items: center;
   justify-content: space-between;
 }
+
+/* Toggle switch styling */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 120px;
+  height: 30px;
+  margin: 0 10px;
+  vertical-align: middle;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: lightslategray;
+  transition: 0.3s;
+  border-radius: 30px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 52px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 30px;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(60px);
+}
+
+/* Hide SSH fields when in local mode */
+.ssh-fields.collapsed {
+  display: none;
+}

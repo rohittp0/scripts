@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const sshCommandOutput = document.getElementById("sshCommandOutput");
   const scriptDescription = document.getElementById("scriptDescription");
 
+  const modeToggle = document.getElementById("modeToggle");
+  const sshFields = document.querySelector(".ssh-fields");
+
   // LocalStorage keys for SSH fields
   const STORAGE_KEYS = {
     pemPath: "ssh_pemPaths",
@@ -67,6 +70,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Call initialization
   initializeDatalistsFromStorage();
 
+  // Handle toggle switch for SSH vs Local mode
+  modeToggle.addEventListener("change", () => {
+    if (modeToggle.checked) {
+      // Local mode - hide SSH fields
+      sshFields.classList.add("collapsed");
+    } else {
+      // SSH mode - show SSH fields
+      sshFields.classList.remove("collapsed");
+    }
+    buildSSHCommand();
+  });
+
   // Fetch JSON data
   fetch("./index.json")
     .then((response) => response.json())
@@ -102,11 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Build the SSH command string (using curl)
   function buildSSHCommand() {
-    const pemPath = pemPathInput.value.trim() || "~/.ssh/";
-    const sshUser = sshUserInput.value.trim() || "root";
-    const host = hostInput.value.trim() || "example.com";
-    const port = parseInt(portInput.value.trim(), 10) || 22;
-
     const selectedScriptIndex = scriptSelect.value;
     // If no valid script is selected
     if (selectedScriptIndex === "") {
@@ -122,26 +132,46 @@ document.addEventListener("DOMContentLoaded", () => {
       params.push(input.value.trim());
     });
 
-    // Base SSH command
-    let command = "ssh ";
+    // Check if we're in Local mode (toggle is checked)
+    const isLocalMode = modeToggle.checked;
 
-    // If port is not 22, add -p flag
-    if (port !== 22) {
-      command += `-p ${port} `;
+    let command;
+
+    if (isLocalMode) {
+      // Local mode - just curl and pipe to bash
+      command = `curl -sS ${location.href}${selectedScript.path} | bash -s`;
+
+      // If params exist, append them
+      if (params.length) {
+        command += " " + params.join(" ");
+      }
+    } else {
+      // SSH mode - build full SSH command
+      const pemPath = pemPathInput.value.trim() || "~/.ssh/";
+      const sshUser = sshUserInput.value.trim() || "root";
+      const host = hostInput.value.trim() || "example.com";
+      const port = parseInt(portInput.value.trim(), 10) || 22;
+
+      // Base SSH command
+      command = "ssh ";
+
+      // If port is not 22, add -p flag
+      if (port !== 22) {
+        command += `-p ${port} `;
+      }
+
+      command += `-i ${pemPath} ${sshUser}@${host} `;
+
+      // Use curl to fetch the script by URL/path, then pipe to bash
+      command += `"curl -sS ${location.href}${selectedScript.path} | bash -s`;
+
+      // If params exist, append them
+      if (params.length) {
+        command += " " + params.join(" ");
+      }
+
+      command += `"`;
     }
-
-    command += `-i ${pemPath} ${sshUser}@${host} `;
-
-    // Use curl to fetch the script by URL/path, then pipe to bash
-    // The script may need quotes if it has spaces, etc., but for demonstration:
-    command += `"curl -sS ${location.href}${selectedScript.path} | bash -s`;
-
-    // If params exist, append them
-    if (params.length) {
-      command += " " + params.join(" ");
-    }
-
-    command += `"`;
 
     // Update output
     sshCommandOutput.textContent = command;
