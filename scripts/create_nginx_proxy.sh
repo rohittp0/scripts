@@ -100,6 +100,6 @@ echo "Testing Nginx configuration..."
 sudo nginx -t
 
 echo "Reloading Nginx..."
-sudo systemctl reload nginx
+sudo systemctl reload nginx || sudo systemctl start nginx
 
 echo "Completed! Config available at: $NGINX_CONF"
