@@ -78,3 +78,11 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/swap.sh`
 - **Description**: Creates and configures a swap file on Ubuntu. Default swap size is 2GB and swappiness is 10. Swappiness controls how aggressively the kernel swaps memory pages (lower = less swapping).
 
+## Nginx Proxy Setup
+- **Path**: `scripts/create_nginx_proxy.sh`
+- **Description**: Creates an Nginx configuration for proxying requests to a specified backend server. Supports SSL with Certbot and Cloudflare DNS plugin, and includes optimizations for WebSockets and compression.
+
+## Certbot Cloudflare SSL
+- **Path**: `scripts/certbot_cloudflare.sh`
+- **Description**: Uses Certbot with Cloudflare DNS plugin to automatically generate SSL certificates for the specified domain. Installs the necessary Cloudflare plugin if not present.
+
