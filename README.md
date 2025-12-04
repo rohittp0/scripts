@@ -86,3 +86,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/certbot_cloudflare.sh`
 - **Description**: Uses Certbot with Cloudflare DNS plugin to automatically generate SSL certificates for the specified domain. Installs the necessary Cloudflare plugin if not present.
 
+## Reset Postgres WALL
+- **Path**: `scripts/reset_wall.sh`
+- **Description**: Resets the Postgres write ahead log by running `pg_resetwal` from a temporary container. Use with caution will drop all pending writes.
+
