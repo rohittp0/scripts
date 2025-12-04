@@ -13,9 +13,7 @@ if [ -z $VOLUME ]; then
 fi
 
 if [ -z $VERSION ]; then
- if [ -z $VERSION ]; then
-   VERSION="latest"
- fi
+ VERSION="latest"
 fi
 
 docker run --rm -it \
