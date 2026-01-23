@@ -88,5 +88,14 @@
       "Postgres Version (optional)"
     ],
     "desc": "Resets the Postgres write ahead log by running `pg_resetwal` from a temporary container. Use with caution will drop all pending writes."
+  },
+  {
+    "name": "Git Clone with SSH Key",
+    "path": "scripts/git_clone.sh",
+    "params": [
+      "SSH Key",
+      "Git URL"
+    ],
+    "desc": "Clones a Git repository using a specified SSH key from ~/.ssh/. Assumes the key exists and is a valid private SSH key."
   }
 ]
