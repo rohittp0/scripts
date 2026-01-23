@@ -90,3 +90,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/reset_wall.sh`
 - **Description**: Resets the Postgres write ahead log by running `pg_resetwal` from a temporary container. Use with caution will drop all pending writes.
 
+## Git Clone with SSH Key
+- **Path**: `scripts/git_clone.sh`
+- **Description**: Clones a Git repository using a specified SSH key from ~/.ssh/. Assumes the key exists and is a valid private SSH key.
+
