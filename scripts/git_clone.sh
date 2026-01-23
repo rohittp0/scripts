@@ -27,7 +27,7 @@ if ! grep -q "PRIVATE KEY" "$KEY_PATH"; then
 fi
 
 # Set SSH_KEY_PATH environment variable for git to use the specific key
-export GIT_SSH_COMMAND="ssh -i $KEY_PATH -o StrictHostKeyChecking=no"
+export GIT_SSH_COMMAND="ssh -i \"$KEY_PATH\" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 
 # Perform the git clone
 echo "Cloning repository from $CLONE_URL using key $KEY_NAME..."
