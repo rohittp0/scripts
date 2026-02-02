@@ -19,10 +19,10 @@ EOF
 HOST=$1
 REMOTE_DIR=$2
 IDENTITY_FILE=$3
-LOCAL_USER=${4:-$(id -un)}
+MOUNT_POINT=${4:-$2}
+LOCAL_USER=${5:-$(id -un)}
 # Resolve HOME robustly even under sudo
 LOCAL_HOME=$(getent passwd "$LOCAL_USER" | cut -d: -f6)
-MOUNT_POINT="${LOCAL_HOME}/${REMOTE_DIR//\//_}"  # unique & safe
 IDENTITY_PATH=$(realpath -m "$IDENTITY_FILE")                # canonical
 
 # ---------- sanity checks ---------------------------------------------------
