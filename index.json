@@ -103,8 +103,9 @@
     "name": "Setup NFS",
     "path": "scripts/setup_nfs.sh",
     "params": [
-      "Volume Name"
+      "Volume Name",
+      "Server IP"
     ],
-    "desc": "Creates an NFS volume with the given name and accessible only from /16 subnet of the server. UID and GID of 1001 are used with all_squash"
+    "desc": "Creates an NFS volume with the given name and accessible only from subnet of the server IP. UID and GID of 1001 are used with all_squash"
   }
 ]
