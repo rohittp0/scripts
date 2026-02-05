@@ -11,6 +11,10 @@ set -euo pipefail
 
 VOLUME_NAME="${1:-}"
 [[ -n "$VOLUME_NAME" ]] || { echo "Usage: $0 <VOLUME_NAME>" >&2; exit 1; }
+if [[ ! "$VOLUME_NAME" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "VOLUME_NAME must be a single path segment (letters, numbers, ., _, - only)." >&2
+  exit 1
+fi
 
 ANON_UID=1001
 ANON_GID=1001
