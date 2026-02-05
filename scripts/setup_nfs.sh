@@ -114,7 +114,7 @@ sudo sed -i.bak -E "\|^${EXPORT_DIR}[[:space:]]|d" "$EXPORTS_FILE"
 # - no_root_squash lets root keep root privileges for chown/chmod/etc.
 EXPORT_LINE="${EXPORT_DIR}"
 for cidr in "${CIDR_LIST[@]}"; do
-  EXPORT_LINE+="  ${cidr}(rw,sync,no_subtree_check,secure,sec=sys,all_squash,anonuid=${ANON_UID},anongid=${ANON_GID},no_root_squash)"
+  EXPORT_LINE+="  ${cidr}(rw,sync,no_subtree_check,secure,sec=sys,anonuid=${ANON_UID},anongid=${ANON_GID},no_root_squash)"
 done
 echo "$EXPORT_LINE" | sudo tee -a "$EXPORTS_FILE" >/dev/null
 
