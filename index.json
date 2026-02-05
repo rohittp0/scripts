@@ -105,6 +105,6 @@
     "params": [
       "Volume Name"
     ],
-    "desc": "Creates an NFS volume wiht the given name and accecisable only from /16 subnet of the server. UID and GID of 1001 are used with all_squash"
+    "desc": "Creates an NFS volume with the given name and accessible only from /16 subnet of the server. UID and GID of 1001 are used with all_squash"
   }
 ]
