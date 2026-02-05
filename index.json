@@ -98,5 +98,13 @@
       "Git URL"
     ],
     "desc": "Clones a Git repository using a specified SSH key from ~/.ssh/. Assumes the key exists and is a valid private SSH key."
+  },
+  {
+    "name": "Setup NFS",
+    "path": "scripts/setup_nfs.sh",
+    "params": [
+      "Volume Name"
+    ],
+    "desc": "Creates an NFS volume wiht the given name and accecisable only from /16 subnet of the server. UID and GID of 1001 are used with all_squash"
   }
 ]
