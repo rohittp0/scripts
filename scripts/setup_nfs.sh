@@ -4,12 +4,9 @@ set -euo pipefail
 # Usage:
 #   ./setup_nfs_manager.sh <VOLUME_NAME> <BIND_IP>
 #
-# Example:
-#   ./setup_nfs_manager.sh marine_shared 10.116.0.10
-#
 # Exports: /srv/nfs/<VOLUME_NAME>
 # Binds NFS to <BIND_IP>
-# Restricts access to the connected subnet of the interface that owns <BIND_IP>
+# Exports to multiple "host" CIDRs (non-container interfaces) so Docker/Swarm CIDRs are covered.
 
 VOLUME_NAME="${1:-}"
 BIND_IP="${2:-}"
@@ -36,41 +33,67 @@ IFACE="$(ip -4 -o addr show | awk -v ip="$BIND_IP" '$4 ~ ("^"ip"/") {print $2; e
   exit 1
 }
 
-# ---- Derive connected subnet CIDR from kernel routes on that interface ----
-# Prefer route that contains the bind IP (most correct if iface has multiple subnets)
-SUBNET_CIDR="$(
-  ip -4 route show dev "$IFACE" proto kernel \
-  | awk -v ip="$BIND_IP" '
-      function ip2i(s,  a){split(s,a,"."); return a[1]*256^3+a[2]*256^2+a[3]*256+a[4]}
-      function in_cidr(ip, cidr,  net,pfx,mask,ipi,neti){
-        split(cidr,a,"/"); net=a[1]; pfx=a[2]
-        mask = (pfx==0)?0:(and(0xffffffff, lshift(0xffffffff, 32-pfx)))
-        ipi=ip2i(ip); neti=ip2i(net)
-        return and(ipi,mask)==and(neti,mask)
-      }
-      {
-        cidr=$1
-        if (cidr ~ /^[0-9]+\./ && cidr ~ /\/[0-9]+$/) {
-          if (in_cidr(ip, cidr)) { print cidr; exit }
-        }
-      }
-    '
-)"
-
-# Fallback: use the interface address CIDR if no kernel route match
-if [[ -z "$SUBNET_CIDR" ]]; then
-  SUBNET_CIDR="$(ip -4 addr show dev "$IFACE" | awk -v ip="$BIND_IP" '$1=="inet" && $2 ~ ("^"ip"/"){print $2; exit}')"
-fi
-
-[[ -n "$SUBNET_CIDR" ]] || {
-  echo "Could not derive subnet CIDR for IP ${BIND_IP} on iface ${IFACE}." >&2
-  exit 1
+# ---- Build a safe list of CIDRs to allow ----
+# Goal: include all "real" host private networks (eth*, ens*, etc.) but exclude container/overlay interfaces.
+is_container_iface() {
+  local dev="$1"
+  [[ "$dev" == "lo" ]] && return 0
+  [[ "$dev" == docker* ]] && return 0
+  [[ "$dev" == "docker_gwbridge" ]] && return 0
+  [[ "$dev" == br-* ]] && return 0
+  [[ "$dev" == veth* ]] && return 0
+  [[ "$dev" == vxlan* ]] && return 0
+  [[ "$dev" == flannel* ]] && return 0
+  [[ "$dev" == cni* ]] && return 0
+  [[ "$dev" == kube* ]] && return 0
+  [[ "$dev" == weave* ]] && return 0
+  [[ "$dev" == cali* ]] && return 0
+  return 1
 }
 
-echo "[info] Bind IP     : $BIND_IP"
-echo "[info] Interface   : $IFACE"
-echo "[info] Subnet CIDR : $SUBNET_CIDR"
-echo "[info] Export dir  : $EXPORT_DIR"
+is_rfc1918() {
+  local ip="$1"
+  [[ "$ip" =~ ^10\. ]] || \
+  [[ "$ip" =~ ^192\.168\. ]] || \
+  [[ "$ip" =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]]
+}
+
+# Collect RFC1918 CIDRs from non-container interfaces
+mapfile -t CIDR_LIST < <(
+  ip -4 -o addr show \
+  | awk '{print $2, $4}' \
+  | while read -r dev cidr; do
+      ip="${cidr%%/*}"
+      if is_container_iface "$dev"; then
+        continue
+      fi
+      if is_rfc1918 "$ip"; then
+        echo "$cidr"
+      fi
+    done \
+  | sort -u
+)
+
+# Ensure the bind IP’s CIDR is included even if interface naming is odd
+BIND_CIDR="$(ip -4 -o addr show dev "$IFACE" | awk -v ip="$BIND_IP" '$4 ~ ("^"ip"/") {print $4; exit}')"
+[[ -n "$BIND_CIDR" ]] || { echo "Could not derive CIDR for bind IP ${BIND_IP}." >&2; exit 1; }
+
+CIDR_LIST+=("$BIND_CIDR")
+CIDR_LIST=($(printf "%s\n" "${CIDR_LIST[@]}" | sort -u))
+
+# Guard: never export to public networks
+for c in "${CIDR_LIST[@]}"; do
+  ip="${c%%/*}"
+  if ! is_rfc1918 "$ip"; then
+    echo "Refusing to export to non-RFC1918 CIDR: $c" >&2
+    exit 1
+  fi
+done
+
+echo "[info] Bind IP        : $BIND_IP"
+echo "[info] Interface      : $IFACE"
+echo "[info] Allowed CIDRs  : ${CIDR_LIST[*]}"
+echo "[info] Export dir     : $EXPORT_DIR"
 
 # ---- Install NFS server if missing ----
 if ! dpkg -s nfs-kernel-server >/dev/null 2>&1; then
@@ -88,18 +111,19 @@ EXPORTS_FILE="/etc/exports"
 sudo touch "$EXPORTS_FILE"
 sudo sed -i.bak -E "\|^${EXPORT_DIR}[[:space:]]|d" "$EXPORTS_FILE"
 
-sudo tee -a "$EXPORTS_FILE" >/dev/null <<EOF
-${EXPORT_DIR}  ${SUBNET_CIDR}(rw,sync,no_subtree_check,all_squash,anonuid=${ANON_UID},anongid=${ANON_GID})
-EOF
+# Build a single export line with multiple CIDRs
+EXPORT_LINE="${EXPORT_DIR}"
+for cidr in "${CIDR_LIST[@]}"; do
+  EXPORT_LINE+="  ${cidr}(rw,sync,no_subtree_check,all_squash,anonuid=${ANON_UID},anongid=${ANON_GID})"
+done
+echo "$EXPORT_LINE" | sudo tee -a "$EXPORTS_FILE" >/dev/null
 
 # ---- Bind NFS to the provided IP only ----
 NFS_DEFAULT="/etc/default/nfs-kernel-server"
 if sudo grep -q '^RPCNFSDOPTS=' "$NFS_DEFAULT" 2>/dev/null; then
   sudo sed -i -E "s/^RPCNFSDOPTS=.*/RPCNFSDOPTS=\"--host ${BIND_IP}\"/" "$NFS_DEFAULT"
 else
-  sudo tee -a "$NFS_DEFAULT" >/dev/null <<EOF
-RPCNFSDOPTS="--host ${BIND_IP}"
-EOF
+  echo "RPCNFSDOPTS=\"--host ${BIND_IP}\"" | sudo tee -a "$NFS_DEFAULT" >/dev/null
 fi
 
 # ---- Apply configuration ----
@@ -108,19 +132,24 @@ sudo systemctl restart nfs-kernel-server
 sudo systemctl enable nfs-kernel-server
 
 # ---- Firewall hardening (UFW if active) ----
-# Allow-first, then deny. (UFW is ordered; allow must appear before deny.)
 if command -v ufw >/dev/null 2>&1 && sudo ufw status | grep -qi "Status: active"; then
-  sudo ufw allow from "$SUBNET_CIDR" to any port 2049 proto tcp
-  sudo ufw allow from "$SUBNET_CIDR" to any port 2049 proto udp
-  sudo ufw allow from "$SUBNET_CIDR" to any port 111  proto tcp
-  sudo ufw allow from "$SUBNET_CIDR" to any port 111  proto udp
+  for cidr in "${CIDR_LIST[@]}"; do
+    sudo ufw allow from "$cidr" to any port 2049 proto tcp || true
+    sudo ufw allow from "$cidr" to any port 2049 proto udp || true
+    sudo ufw allow from "$cidr" to any port 111  proto tcp || true
+    sudo ufw allow from "$cidr" to any port 111  proto udp || true
+  done
 
-  sudo ufw deny 2049/tcp
-  sudo ufw deny 2049/udp
-  sudo ufw deny 111/tcp
-  sudo ufw deny 111/udp
+  # Deny after allows (ordered)
+  sudo ufw deny 2049/tcp || true
+  sudo ufw deny 2049/udp || true
+  sudo ufw deny 111/tcp  || true
+  sudo ufw deny 111/udp  || true
 fi
 
 echo "[ok] NFS export secured and ready."
-echo "     Mount from workers with:"
+sudo exportfs -v
+
+echo "-----------"
+echo "Mount test:"
 echo "     sudo mount -t nfs4 ${BIND_IP}:${EXPORT_DIR} /mnt/${VOLUME_NAME}"
