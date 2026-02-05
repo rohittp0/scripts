@@ -7,6 +7,7 @@ set -euo pipefail
 # Exports: /srv/nfs/<VOLUME_NAME>
 # Binds NFS to <BIND_IP>
 # Exports to multiple "host" CIDRs (non-container interfaces) so Docker/Swarm CIDRs are covered.
+# SECURITY: uses no_root_squash (root on clients acts as root on the share)
 
 VOLUME_NAME="${1:-}"
 BIND_IP="${2:-}"
@@ -34,7 +35,6 @@ IFACE="$(ip -4 -o addr show | awk -v ip="$BIND_IP" '$4 ~ ("^"ip"/") {print $2; e
 }
 
 # ---- Build a safe list of CIDRs to allow ----
-# Goal: include all "real" host private networks (eth*, ens*, etc.) but exclude container/overlay interfaces.
 is_container_iface() {
   local dev="$1"
   [[ "$dev" == "lo" ]] && return 0
@@ -58,7 +58,6 @@ is_rfc1918() {
   [[ "$ip" =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]]
 }
 
-# Collect RFC1918 CIDRs from non-container interfaces
 mapfile -t CIDR_LIST < <(
   ip -4 -o addr show \
   | awk '{print $2, $4}' \
@@ -74,14 +73,12 @@ mapfile -t CIDR_LIST < <(
   | sort -u
 )
 
-# Ensure the bind IP’s CIDR is included even if interface naming is odd
 BIND_CIDR="$(ip -4 -o addr show dev "$IFACE" | awk -v ip="$BIND_IP" '$4 ~ ("^"ip"/") {print $4; exit}')"
 [[ -n "$BIND_CIDR" ]] || { echo "Could not derive CIDR for bind IP ${BIND_IP}." >&2; exit 1; }
 
 CIDR_LIST+=("$BIND_CIDR")
 CIDR_LIST=($(printf "%s\n" "${CIDR_LIST[@]}" | sort -u))
 
-# Guard: never export to public networks
 for c in "${CIDR_LIST[@]}"; do
   ip="${c%%/*}"
   if ! is_rfc1918 "$ip"; then
@@ -94,6 +91,7 @@ echo "[info] Bind IP        : $BIND_IP"
 echo "[info] Interface      : $IFACE"
 echo "[info] Allowed CIDRs  : ${CIDR_LIST[*]}"
 echo "[info] Export dir     : $EXPORT_DIR"
+echo "[warn] no_root_squash enabled: root on clients can act as root on this share."
 
 # ---- Install NFS server if missing ----
 if ! dpkg -s nfs-kernel-server >/dev/null 2>&1; then
@@ -111,10 +109,12 @@ EXPORTS_FILE="/etc/exports"
 sudo touch "$EXPORTS_FILE"
 sudo sed -i.bak -E "\|^${EXPORT_DIR}[[:space:]]|d" "$EXPORTS_FILE"
 
-# Build a single export line with multiple CIDRs
+# NOTE:
+# - all_squash keeps regular users mapped to anonuid/anongid.
+# - no_root_squash lets root keep root privileges for chown/chmod/etc.
 EXPORT_LINE="${EXPORT_DIR}"
 for cidr in "${CIDR_LIST[@]}"; do
-  EXPORT_LINE+="  ${cidr}(rw,sync,no_subtree_check,all_squash,anonuid=${ANON_UID},anongid=${ANON_GID})"
+  EXPORT_LINE+="  ${cidr}(rw,sync,no_subtree_check,secure,sec=sys,all_squash,anonuid=${ANON_UID},anongid=${ANON_GID},no_root_squash)"
 done
 echo "$EXPORT_LINE" | sudo tee -a "$EXPORTS_FILE" >/dev/null
 
@@ -139,17 +139,12 @@ if command -v ufw >/dev/null 2>&1 && sudo ufw status | grep -qi "Status: active"
     sudo ufw allow from "$cidr" to any port 111  proto tcp || true
     sudo ufw allow from "$cidr" to any port 111  proto udp || true
   done
-
-  # Deny after allows (ordered)
   sudo ufw deny 2049/tcp || true
   sudo ufw deny 2049/udp || true
   sudo ufw deny 111/tcp  || true
   sudo ufw deny 111/udp  || true
 fi
 
-echo "[ok] NFS export secured and ready."
-sudo exportfs -v
-
-echo "-----------"
-echo "Mount test:"
+echo "[ok] NFS export updated."
+echo "     Mount test:"
 echo "     sudo mount -t nfs4 ${BIND_IP}:${EXPORT_DIR} /mnt/${VOLUME_NAME}"
