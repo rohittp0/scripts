@@ -94,3 +94,7 @@ Below are the scripts found in `index.json`:
 - **Path**: `scripts/git_clone.sh`
 - **Description**: Clones a Git repository using a specified SSH key from ~/.ssh/. Assumes the key exists and is a valid private SSH key.
 
+## Setup NFS
+- **Path**: `scripts/setup_nfs.sh`
+- **Description**: Creates an NFS volume with the given name and accessible only from subnet of the server IP. UID and GID of 1001 are used with all_squash
+
