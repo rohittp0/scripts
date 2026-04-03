@@ -4,22 +4,22 @@
 set -e
 
 VOLUME="$1"
-VERSION="$2"
+IMAGE="$2"
 
 # Input validation
 if [ -z $VOLUME ]; then
-    echo "Usage: $0 <pg_volume> [<pg_version>]"
+    echo "Usage: $0 <pg_volume> [<pg_image>]"
     exit 1
 fi
 
-if [ -z $VERSION ]; then
- VERSION="latest"
+if [ -z $IMAGE ]; then
+ IMAGE="postgres:latest"
 fi
 
 docker run --rm -it \
-  -v "${VOLUME}":/var/lib/postgresql/data \
+  -v "${VOLUME}":/var/lib/postgresql/ \
   --user postgres \
-  postgis/postgis:${VERSION} \
-  pg_resetwal -f /var/lib/postgresql/data
+  ${IMAGE} \
+  pg_resetwal -f /var/lib/postgresql/
 
 echo "PG WALL reset"
