@@ -86,7 +86,7 @@
     "path": "scripts/reset_wall.sh",
     "params": [
       "Postgres Docker Volume",
-      "Postgres Version (optional)"
+      "Postgres Image (optional, defaults to postgres:latest)"
     ],
     "desc": "Resets the Postgres write ahead log by running `pg_resetwal` from a temporary container. Use with caution will drop all pending writes."
   },
